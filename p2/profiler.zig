@@ -15,11 +15,13 @@ pub fn main() !void {
 
     const cpuElapsed = @as(i128, endTicks - startTicks);
     const osElapsed = @as(i128, endOs - startOs);
-    const cpuFreqHz = @divTrunc(cpuElapsed * get_arm_timer_frequency(), osElapsed);
+    const cpu_freq = @divTrunc(cpuElapsed * get_arm_timer_frequency(), osElapsed);
 
-    std.debug.print("OS elapsed     : {d} ns\n", .{osElapsed});
-    std.debug.print("CPU elapsed    : {d} timer-ticks\n", .{cpuElapsed});
-    std.debug.print("CPU frequency estimate  : {d} Hz\n", .{cpuFreqHz});
+    std.debug.print("OS Timer: {d} -> {d} = {d} elapsed\n", .{ startOs, endOs, osElapsed });
+    std.debug.print("OS Seconds: {d:.4}\n", .{@as(f64, @floatFromInt(osElapsed)) / @as(f64, @floatFromInt(get_arm_timer_frequency()))});
+
+    std.debug.print("CPU Timer: {d} -> {d} = {d} elapsed\n", .{ startTicks, endTicks, cpuElapsed });
+    std.debug.print("CPU Freq: {d:.4} (guessed)\n", .{cpu_freq});
 }
 
 pub fn rtdsc() u64 {
@@ -39,21 +41,3 @@ pub fn get_arm_timer_frequency() u64 {
         : "x0"
     );
 }
-// pub fn calibrate_frequency(ms: u64, time_fn: *const fn () u64) f64 {
-//     const freq: u64 = query_performance_frequency();
-//     const ticks_to_run = ms * (freq / 1000);
-//
-//     const cpu_start = time_fn();
-//     const start = query_performance_counter();
-//
-//     while (query_performance_counter() -% start < ticks_to_run) {}
-//
-//     const end = query_performance_counter();
-//     const cpu_end = time_fn();
-//
-//     const cpu_elapsed = cpu_end -% cpu_start;
-//     const os_elpased = end -% start;
-//
-//     const cpu_freq = freq * cpu_elapsed / os_elpased;
-//     return @floatFromInt(cpu_freq);
-// }
